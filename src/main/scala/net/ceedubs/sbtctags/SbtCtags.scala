@@ -15,7 +15,7 @@ final case class CtagsParams(
   excludes: Seq[String],
   languages: Seq[String],
   tagFileName: String,
-  ctagsExtraArgs: Seq[String])
+  extraArgs: Seq[String])
 
 object CtagsKeys {
   val dependencySrcUnzipDir = SettingKey[File]("ctags-dependency-src-unzip-dir", "The directory into which the dependency source jars should be unzipped. WARNING: when gen-ctags is run, this directory will be deleted, so DO NOT change this setting to an important directory.")
@@ -47,14 +47,14 @@ object SbtCtags extends Plugin {
         excludes = Seq("log"),
         languages = Seq("scala"),
         tagFileName = ".tags",
-        ctagsExtraArgs = Seq.empty)
+        extraArgs = Seq.empty)
 
   def defaultCtagsGeneration(context: CtagsGenerationContext) {
     val ctagsParams = context.ctagsParams
     val dirArgs = context.srcDirs.map(_.getAbsolutePath).mkString(" ")
     val excludeArgs = ctagsParams.excludes.map(x => s"--exclude=$x").mkString(" ")
     val languagesArgs = if (ctagsParams.languages.isEmpty) "" else s"--languages=${ctagsParams.languages.mkString(",")}"
-    val extraArgs = ctagsParams.ctagsExtraArgs.mkString(" ")
+    val extraArgs = ctagsParams.extraArgs.mkString(" ")
     // will look something like "ctags --exclude=.git --exclude=log --languages=scala -f .tags -R src/main/scala target/sbt-ctags-dep-srcs"
     val ctagsCmd = s"${ctagsParams.executable} $excludeArgs $languagesArgs -f ${ctagsParams.tagFileName} $extraArgs -R $dirArgs"
     context.log.info(s"running this command to generate ctags: $ctagsCmd")
