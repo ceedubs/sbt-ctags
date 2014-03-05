@@ -3,7 +3,8 @@ SBT ctags is an SBT plugin that will generate ctags for your Scala project.
 
 It unzips the source jars for your project dependencies and generates ctags for these dependency sources in addition to the Scala source of your project itself.
 
-# Adding the dependency #
+# Setting it up #
+## Adding the plugin dependency ##
 Add the following to `~/.sbt/0.13/plugins/plugins.sbt` (or wherever you like to configure your global SBT settings):
 ```scala
 resolvers ++= Seq(
@@ -15,6 +16,9 @@ addSbtPlugin("net.ceedubs" %% "sbt-ctags" % "0.0.1-SNAPSHOT")
 ```
 
 Alternatively you can add this plugin to individual SBT projects by adding those lines to `<project-dir>/project/plugins.sbt`.
+
+## Installing ctags ##
+You will need to make sure that your ctags knows how to handle Scala. I recommend copying the contents of the [dot-ctags file from scala-dist](https://github.com/scala/scala-dist/blob/master/tool-support/src/emacs/contrib/dot-ctags) into your `~/.ctags`.
 
 By default, the plugin assumes you have a `ctags` executable on your path that is syntax-compatible with [Exuberant Ctags](http://ctags.sourceforge.net/). Some systems will already have a version of `ctags` installed that isn't compatible with this syntax. If you get errors and you are on Mac OS X, you might want to try `brew install ctags`.
 
