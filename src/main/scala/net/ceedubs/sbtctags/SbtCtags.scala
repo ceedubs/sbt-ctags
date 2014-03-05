@@ -40,7 +40,7 @@ object SbtCtags extends Plugin {
           }
           ctagsExecutable foreach { ctagsCmd =>
             val existingCtagsSrcDirs = ctagsSrcDirs.filter(_.exists)
-            streams.log.error(s"existing ctags src dirs: $existingCtagsSrcDirs")
+            streams.log.debug(s"existing ctags src dirs: $existingCtagsSrcDirs")
             val cmdWithDirs = s"$ctagsCmd ${existingCtagsSrcDirs.map(_.getAbsolutePath).mkString(" ")}"
             Process(cmdWithDirs, Some(new File(buildStruct.root)), Seq.empty: _*).!
           }
