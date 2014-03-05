@@ -27,6 +27,8 @@ Your text editor of choice that supports ctags will need to be configured to loo
 
 The Vim Tips Wiki has some useful information for [Browsing programs with tags](http://vim.wikia.com/wiki/Browsing_programs_with_tags)
 
+Emacswiki has some useful information for [navigating using tags](http://www.emacswiki.org/emacs/EmacsTags)
+
 # Configuration #
 There are a number of configurable settings declared in [SbtCtags.scala](https://github.com/ceedubs/sbt-ctags/blob/master/src/main/scala/net/ceedubs/sbtctags/SbtCtags.scala). The best way to get to know what the configuration options are is probably to browse the `CtagsKeys` object within that file.
 
