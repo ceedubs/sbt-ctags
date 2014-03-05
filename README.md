@@ -16,11 +16,13 @@ addSbtPlugin("net.ceedubs" %% "sbt-ctags" % "0.0.1-SNAPSHOT")
 
 Alternatively you can add this plugin to individual SBT projects by adding those lines to `<project-dir>/project/plugins.sbt`.
 
+By default, the plugin assumes you have a `ctags` executable on your path that is syntax-compatible with [Exuberant Ctags](http://ctags.sourceforge.net/). Some systems will already have a version of `ctags` installed that isn't compatible with this syntax. If you get errors and you are on Mac OS X, you might want to try `brew install ctags`.
+
+If you'd rather go the advanced route and customize the way tags are generated, see [Configuration](#configuration).
+
 # Using the plugin #
 
 To generate ctags for a project, run `sbt gen-ctags` from the project's root directory. This will unzip dependency source jars into `target/sbt-ctags-dep-srcs` (configurable) and create a tags file (default location is `.tags` inside the root dir).
-
-By default, the plugin assumes you have a `ctags` executable on your path that is syntax-compatible with [Exuberant Ctags](http://ctags.sourceforge.net/). If that's not the case or you would like to customize the way tags are generated, see [Configuration](#configuration)
 
 # Using the tags #
 Your text editor of choice that supports ctags will need to be configured to look for the generated `.tags` file (the file name may be different depending on your plugin configuration). I use vim and this is accomplished by adding `set tags=./.tags,.tags,./tags,tags` to my `.vimrc`.
