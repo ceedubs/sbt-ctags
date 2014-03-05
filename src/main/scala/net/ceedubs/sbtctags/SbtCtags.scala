@@ -1,6 +1,7 @@
 package net.ceedubs.sbtctags
 
 import sbt._
+import sbt.std.TaskStreams
 import java.io.File
 
 object SbtCtags extends Plugin {
@@ -17,13 +18,11 @@ object SbtCtags extends Plugin {
       CtagsKeys.dependencySrcUnzipDir <<= Keys.target (_ / "sbt-ctags-dep-srcs"),
       CtagsKeys.ctagsExecutable := Some("ctags -R --exclude=.git --exclude=log --languages=scala -f .tags"),
       CtagsKeys.ctagsSrcDirs <<= (Keys.scalaSource in Compile, CtagsKeys.dependencySrcUnzipDir){ (srcDir, depSrcDir) =>
-        val res = Seq(srcDir, depSrcDir)
-        println(s"ctags src dirs: $res")
-        res
+        Seq(srcDir, depSrcDir)
       },
-      CtagsKeys.genCtags <<= (Keys.state, CtagsKeys.dependencySrcUnzipDir, CtagsKeys.ctagsExecutable, CtagsKeys.ctagsSrcDirs) map genCtags)
+      CtagsKeys.genCtags <<= (Keys.state, CtagsKeys.dependencySrcUnzipDir, CtagsKeys.ctagsExecutable, CtagsKeys.ctagsSrcDirs, Keys.streams) map genCtags)
 
-  def genCtags(state: State, dependencySrcUnzipDir: File, ctagsExecutable: Option[String], ctagsSrcDirs: Seq[File]) {
+  def genCtags(state: State, dependencySrcUnzipDir: File, ctagsExecutable: Option[String], ctagsSrcDirs: Seq[File], streams: TaskStreams[_]) {
     // TODO this could be pretty bad if someone overrides the install dir with an important dir
     val extracted = Project.extract(state)
     val buildStruct = extracted.structure
@@ -41,13 +40,13 @@ object SbtCtags extends Plugin {
           }
           ctagsExecutable foreach { ctagsCmd =>
             val existingCtagsSrcDirs = ctagsSrcDirs.filter(_.exists)
-            println(s"existing ctags src dirs: $existingCtagsSrcDirs")
+            streams.log.error(s"existing ctags src dirs: $existingCtagsSrcDirs")
             val cmdWithDirs = s"$ctagsCmd ${existingCtagsSrcDirs.map(_.getAbsolutePath).mkString(" ")}"
             Process(cmdWithDirs, Some(new File(buildStruct.root)), Seq.empty: _*).!
           }
           state
-        case _ =>
-          println("error trying to update classifiers to find source jars")
+        case x =>
+          streams.log.error(s"error trying to update classifiers to find source jars: $x")
           state
       }
     })
