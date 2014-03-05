@@ -9,7 +9,7 @@ final case class CtagsProject(srcDirs: Seq[File], buildStructure: BuildStructure
 object SbtCtags extends Plugin {
 
   object CtagsKeys {
-    val dependencySrcUnzipDir = SettingKey[File]("dependency-src-unzip-dir", "The directory into which the dependency source jars should be unzipped")
+    val dependencySrcUnzipDir = SettingKey[File]("ctags-dependency-src-unzip-dir", "The directory into which the dependency source jars should be unzipped. WARNING: when gen-ctags is run, this directory will be deleted, so DO NOT change this setting to an important directory.")
     val ctagsGeneration = SettingKey[CtagsProject => Unit]("ctags-generation", "A function that takes some data about the project and creates a tag file. By default it makes an external ctags call.")
     val ctagsSrcDirs = SettingKey[Seq[File]]("ctags-src-dirs", "The directories upon which ctags should be run")
 
