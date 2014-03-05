@@ -28,16 +28,16 @@ object CtagsKeys {
 
 object SbtCtags extends Plugin {
 
-  override lazy val projectSettings = Seq(
+  override val projectSettings = Seq(
       CtagsKeys.dependencySrcUnzipDir <<= Keys.target (_ / "sbt-ctags-dep-srcs"),
 
-      CtagsKeys.ctagsParams := defaultCtagsParams,
+      CtagsKeys.ctagsParams in ThisBuild := defaultCtagsParams,
 
       CtagsKeys.ctagsSrcDirs <<= (Keys.scalaSource in Compile, CtagsKeys.dependencySrcUnzipDir){ (srcDir, depSrcDir) =>
         Seq(srcDir, depSrcDir)
       },
 
-      CtagsKeys.ctagsGeneration := defaultCtagsGeneration,
+      CtagsKeys.ctagsGeneration in ThisBuild := defaultCtagsGeneration,
 
       CtagsKeys.genCtags <<= (Keys.state, CtagsKeys.dependencySrcUnzipDir, CtagsKeys.ctagsParams, CtagsKeys.ctagsGeneration, CtagsKeys.ctagsSrcDirs, Keys.streams) map genCtags
   )
