@@ -17,16 +17,13 @@ addSbtPlugin("net.ceedubs" %% "sbt-ctags" % "0.0.1-SNAPSHOT")
 
 Alternatively you can add this plugin to individual SBT projects by adding those lines to `<project-dir>/project/plugins.sbt`.
 
-## Installing ctags ##
-You will need to make sure that your ctags knows how to handle Scala. I recommend copying the contents of the [dot-ctags file from scala-dist](https://github.com/scala/scala-dist/blob/master/tool-support/src/emacs/contrib/dot-ctags) into your `~/.ctags`.
+## Configuring ctags ##
 
 By default, the plugin assumes you have a `ctags` executable on your path that is syntax-compatible with [Exuberant Ctags](http://ctags.sourceforge.net/). Some systems will already have a version of `ctags` installed that isn't compatible with this syntax. If you get errors and you are on Mac OS X, you might want to try `brew install ctags`.
 
 If you'd rather go the advanced route and customize the way tags are generated, see [Configuration](#configuration).
 
-# Configuring ctags #
-
-By default ctags will not index scala files.  One such ~/.ctags configuration which enables indexing might look like:
+By default ctags will not index scala files.  One such `~/.ctags` configuration which enables indexing might look like:
 
 ```shell
 --langdef=scala
@@ -43,7 +40,7 @@ By default ctags will not index scala files.  One such ~/.ctags configuration wh
 --regex-scala=/^[ \t]*package[ \t]+([a-zA-Z0-9_.]+)/\1/p,packages/
 ```
 
-This was taken from the excellent blog post http://leonard.io/blog/2013/04/editing-scala-with-vim/
+This was taken from the excellent blog post [Editing Scala with vim](http://leonard.io/blog/2013/04/editing-scala-with-vim/) by Leonard Ehrenfried.
 
 # Using the plugin #
 
