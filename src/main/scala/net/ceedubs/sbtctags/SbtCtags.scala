@@ -29,25 +29,26 @@ object CtagsKeys {
 object SbtCtags extends Plugin {
 
   override val projectSettings = Seq(
-      CtagsKeys.dependencySrcUnzipDir <<= Keys.target (_ / "sbt-ctags-dep-srcs"),
+    CtagsKeys.dependencySrcUnzipDir <<= Keys.target(_ / "sbt-ctags-dep-srcs"),
 
-      CtagsKeys.ctagsParams in ThisBuild := defaultCtagsParams,
+    CtagsKeys.ctagsParams in ThisBuild := defaultCtagsParams,
 
-      CtagsKeys.ctagsSrcDirs <<= (Keys.scalaSource in Compile, CtagsKeys.dependencySrcUnzipDir){ (srcDir, depSrcDir) =>
-        Seq(srcDir, depSrcDir)
-      },
+    CtagsKeys.ctagsSrcDirs <<= (Keys.scalaSource in Compile, CtagsKeys.dependencySrcUnzipDir) { (srcDir, depSrcDir) =>
+      Seq(srcDir, depSrcDir)
+    },
 
-      CtagsKeys.ctagsGeneration in ThisBuild := defaultCtagsGeneration,
+    Keys.parallelExecution in ThisBuild := false,
 
-      CtagsKeys.genCtags <<= (Keys.state, CtagsKeys.dependencySrcUnzipDir, CtagsKeys.ctagsParams, CtagsKeys.ctagsGeneration, CtagsKeys.ctagsSrcDirs, Keys.streams) map genCtags
-  )
+    CtagsKeys.ctagsGeneration in ThisBuild := defaultCtagsGeneration,
+
+    CtagsKeys.genCtags <<= (Keys.thisProjectRef, Keys.state, CtagsKeys.dependencySrcUnzipDir, CtagsKeys.ctagsParams, CtagsKeys.ctagsGeneration, CtagsKeys.ctagsSrcDirs, Keys.streams) map genCtags)
 
   val defaultCtagsParams: CtagsParams = CtagsParams(
-        executable = "ctags",
-        excludes = Seq("log"),
-        languages = Seq("scala"),
-        tagFileName = ".tags",
-        extraArgs = Seq.empty)
+    executable = "ctags",
+    excludes = Seq("log"),
+    languages = Seq("scala"),
+    tagFileName = "tags",
+    extraArgs = Seq.empty)
 
   def defaultCtagsGeneration(context: CtagsGenerationContext) {
     val ctagsParams = context.ctagsParams
@@ -56,19 +57,19 @@ object SbtCtags extends Plugin {
     val languagesArgs = if (ctagsParams.languages.isEmpty) "" else s"--languages=${ctagsParams.languages.mkString(",")}"
     val extraArgs = ctagsParams.extraArgs.mkString(" ")
     // will look something like "ctags --exclude=.git --exclude=log --languages=scala -f .tags -R src/main/scala target/sbt-ctags-dep-srcs"
-    val ctagsCmd = s"${ctagsParams.executable} $excludeArgs $languagesArgs -f ${ctagsParams.tagFileName} $extraArgs -R $dirArgs"
+    val ctagsCmd = s"${ctagsParams.executable} $excludeArgs $languagesArgs -a -f ${ctagsParams.tagFileName} $extraArgs -R $dirArgs"
     context.log.info(s"running this command to generate ctags: $ctagsCmd")
     Process(ctagsCmd, Some(new File(context.buildStructure.root)), Seq.empty: _*).!
   }
 
-
-  def genCtags(state: State, dependencySrcUnzipDir: File, ctagsParams: CtagsParams, ctagsGeneration: CtagsGenerationContext => Unit, ctagsSrcDirs: Seq[File], streams: TaskStreams[_]) {
+  def genCtags(projectRef: ProjectRef, state: State, dependencySrcUnzipDir: File, ctagsParams: CtagsParams, ctagsGeneration: CtagsGenerationContext => Unit, ctagsSrcDirs: Seq[File], streams: TaskStreams[_]) {
     // TODO this could be pretty bad if someone overrides the install dir with an important dir
     val extracted = Project.extract(state)
     val buildStruct = extracted.structure
     val log = streams.log
-    log.info(s"Grabbing all dependency source jars. This may take a while if you don't have them in your Ivy cache")
-    EvaluateTask(buildStruct, Keys.updateClassifiers, state, extracted.currentRef).fold(state)(Function.tupled { (state, result) =>
+    val project = Project.getProject(projectRef, buildStruct)
+    log.info(s"Processing project named: ${project.get.id}")
+    EvaluateTask(buildStruct, Keys.updateClassifiers, state, projectRef).fold(state)(Function.tupled { (state, result) =>
       result match {
         case Value(updateReport) =>
           log.info(s"Clearing $dependencySrcUnzipDir")
@@ -93,5 +94,4 @@ object SbtCtags extends Plugin {
       }
     })
   }
-
 }

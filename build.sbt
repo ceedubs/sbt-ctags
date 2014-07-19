@@ -22,13 +22,14 @@ scmInfo := Some(
   )
 )
 
-scalaVersion := "2.10.0"
-
 scalacOptions ++= Seq(
   "-deprecation",
   "-unchecked",
-  "-encoding", "UTF-8"
+  "-encoding", "UTF-8",
+  "-target:jvm-1.7"
 )
+
+javacOptions ++= Seq("-source", "1.7")
 
 /* publishing */
 publishMavenStyle := true
