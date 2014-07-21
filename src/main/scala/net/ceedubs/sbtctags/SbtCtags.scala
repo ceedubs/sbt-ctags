@@ -63,7 +63,6 @@ object SbtCtags extends Plugin {
 
 
   def genCtags(state: State, dependencySrcUnzipDir: File, ctagsParams: CtagsParams, ctagsGeneration: CtagsGenerationContext => Unit, ctagsSrcDirs: Seq[File], streams: TaskStreams[_]) {
-    // TODO this could be pretty bad if someone overrides the install dir with an important dir
     val extracted = Project.extract(state)
     val buildStruct = extracted.structure
     val log = streams.log
@@ -72,6 +71,7 @@ object SbtCtags extends Plugin {
       result match {
         case Value(updateReport) =>
           log.info(s"Clearing $dependencySrcUnzipDir")
+          // TODO this could be pretty bad if someone overrides the install dir with an important dir
           sbt.IO.delete(dependencySrcUnzipDir)
           log.info(s"Unzipping dependency source jars into $dependencySrcUnzipDir")
           for {
