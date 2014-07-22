@@ -56,6 +56,8 @@ Emacswiki has some useful information for [navigating using tags](http://www.ema
 # Configuration #
 There are a number of configurable settings declared in [SbtCtags.scala](https://github.com/ceedubs/sbt-ctags/blob/master/src/main/scala/net/ceedubs/sbtctags/SbtCtags.scala). The best way to get to know what the configuration options are is probably to browse the `CtagsKeys` object within that file.
 
+## Emacs ##
+
 By default, the tags file is named `.tags` and is created at the project root through an external call `ctags` with Exuberant Ctags syntax.
 
 If you want the tags file to be named `TAGS` and to be in Emacs format, you could add the following to `~/.sbt/0.13/sbt-ctags.sbt`:
@@ -65,6 +67,12 @@ import net.ceedubs.sbtctags.CtagsKeys
 
 CtagsKeys.ctagsParams ~= (default => default.copy(tagFileName = "TAGS", extraArgs = "-e" +: default.extraArgs))
 ```
+
+## Java
+
+If you want to produce tags for Java files in addition to Scala files, you can set `CtagsKeys.ctagsParams ~= (_.copy(languages = Seq("scala", "java")))`
+
+## Preventing tag file generation
 
 If you just want to use this plugin to unzip dependency sources so you can generate ctags outside of SBT, you could set `net.ceedubs.sbtctags.CtagsKeys.ctagsGeneration := { _ => () }` to make the generation of ctags a noop.
 
