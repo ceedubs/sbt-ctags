@@ -56,11 +56,13 @@ Emacswiki has some useful information for [navigating using tags](http://www.ema
 # Configuration #
 There are a number of configurable settings declared in [SbtCtags.scala](https://github.com/ceedubs/sbt-ctags/blob/master/src/main/scala/net/ceedubs/sbtctags/SbtCtags.scala). The best way to get to know what the configuration options are is probably to browse the `CtagsKeys` object within that file.
 
+I would suggest putting your sbt-ctags configuration in `~/.sbt/0.13/sbt-ctags.sbt` or something similar.
+
 ## Emacs ##
 
 By default, the tags file is named `.tags` and is created at the project root through an external call `ctags` with Exuberant Ctags syntax.
 
-If you want the tags file to be named `TAGS` and to be in Emacs format, you could add the following to `~/.sbt/0.13/sbt-ctags.sbt`:
+If you want the tags file to be named `TAGS` and to be in Emacs format, you could add the following to your sbt-ctags file:
 
 ```scala
 import net.ceedubs.sbtctags.CtagsKeys
