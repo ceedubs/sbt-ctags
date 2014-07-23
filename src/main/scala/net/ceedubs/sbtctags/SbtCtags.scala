@@ -48,7 +48,7 @@ object SbtCtags extends Plugin {
   val defaultCtagsParams: CtagsParams = CtagsParams(
         executable = "ctags",
         excludes = Seq("log"),
-        languages = Seq("scala"),
+        languages = Seq("scala", "java"),
         tagFileName = ".tags",
         extraArgs = Seq.empty)
 
