@@ -1,10 +1,17 @@
 # SBT ctags #
+
 SBT ctags is an SBT plugin that will generate ctags for your Scala project.
 
 It unzips the source jars for your project dependencies and generates ctags for these dependency sources in addition to the Scala/Java source of your project itself.
 
+# Release notes #
+
+Just want to find out what's new in the most recent version? Check out the [release notes](https://github.com/ceedubs/sbt-ctags/tree/master/release-notes).
+
 # Setting it up #
+
 ## Adding the plugin dependency ##
+
 Add the following to `~/.sbt/0.13/plugins/plugins.sbt` (or wherever you like to configure your global SBT settings):
 ```scala
 resolvers ++= Seq(
@@ -47,6 +54,7 @@ This was taken from the excellent blog post [Editing Scala with vim](http://leon
 To generate ctags for a project, run `sbt gen-ctags` from the project's root directory. This will unzip dependency source jars into `target/sbt-ctags-dep-srcs` (configurable) and create a tags file (default location is `.tags` inside the root dir).
 
 # Using the tags #
+
 Your text editor of choice that supports ctags will need to be configured to look for the generated `.tags` file (the file name may be different depending on your plugin configuration). I use vim and this is accomplished by adding `set tags=./.tags,.tags,./tags,tags` to my `.vimrc`.
 
 The Vim Tips Wiki has some useful information for [Browsing programs with tags](http://vim.wikia.com/wiki/Browsing_programs_with_tags)
@@ -54,6 +62,7 @@ The Vim Tips Wiki has some useful information for [Browsing programs with tags](
 Emacswiki has some useful information for [navigating using tags](http://www.emacswiki.org/emacs/EmacsTags)
 
 # Configuration #
+
 There are a number of configurable settings declared in [SbtCtags.scala](https://github.com/ceedubs/sbt-ctags/blob/master/src/main/scala/net/ceedubs/sbtctags/SbtCtags.scala). The best way to get to know what the configuration options are is probably to browse the `CtagsKeys` object within that file.
 
 I would suggest putting your sbt-ctags configuration in `~/.sbt/0.13/sbt-ctags.sbt` or something similar.

@@ -1,0 +1,9 @@
+# 0.1.0 #
+
+## Summary ##
+
+Adds support for generating tag files for Java source.
+
+## Changes to be aware of ##
+
+By default Java tags are now generated in addition to Scala tags. Since Java wasn't previously supported, this is a change of behavior. If you don't want to generate Java tag files, you can follow the directions in the [Languages section of the README](https://github.com/ceedubs/sbt-ctags/blob/5a7b2a0022635c05649e07b53296dd8f0f0698c0/README.md#languages)
