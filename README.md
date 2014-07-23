@@ -12,7 +12,7 @@ resolvers ++= Seq(
   "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 )
 
-addSbtPlugin("net.ceedubs" %% "sbt-ctags" % "0.0.1")
+addSbtPlugin("net.ceedubs" %% "sbt-ctags" % "0.1.0")
 ```
 
 Alternatively you can add this plugin to individual SBT projects by adding those lines to `<project-dir>/project/plugins.sbt`.
