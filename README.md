@@ -1,7 +1,7 @@
 # SBT ctags #
 SBT ctags is an SBT plugin that will generate ctags for your Scala project.
 
-It unzips the source jars for your project dependencies and generates ctags for these dependency sources in addition to the Scala source of your project itself.
+It unzips the source jars for your project dependencies and generates ctags for these dependency sources in addition to the Scala/Java source of your project itself.
 
 # Setting it up #
 ## Adding the plugin dependency ##
@@ -56,15 +56,29 @@ Emacswiki has some useful information for [navigating using tags](http://www.ema
 # Configuration #
 There are a number of configurable settings declared in [SbtCtags.scala](https://github.com/ceedubs/sbt-ctags/blob/master/src/main/scala/net/ceedubs/sbtctags/SbtCtags.scala). The best way to get to know what the configuration options are is probably to browse the `CtagsKeys` object within that file.
 
-By default, the tags file is named `.tags` and is created at the project root through an external call `ctags` with Exuberant Ctags syntax.
+I would suggest putting your sbt-ctags configuration in `~/.sbt/0.13/sbt-ctags.sbt` or something similar.
 
-If you want the tags file to be named `TAGS` and to be in Emacs format, you could add the following to `~/.sbt/0.13/sbt-ctags.sbt`:
+## Languages ##
+
+By default, sbt-ctags generates tag files for both Java and Scala source. If you prefer to generate tags only for Scala source, you can add the following to your sbt-ctags file:
 
 ```scala
 import net.ceedubs.sbtctags.CtagsKeys
 
+CtagsKeys.ctagsParams ~= (_.copy(languages = Seq("scala")))
+```
+
+## Emacs ##
+
+By default, the tags file is named `.tags` and is created at the project root through an external call `ctags` with Exuberant Ctags syntax.
+
+If you want the tags file to be named `TAGS` and to be in Emacs format, you could set the following to your sbt-ctags file:
+
+```scala
 CtagsKeys.ctagsParams ~= (default => default.copy(tagFileName = "TAGS", extraArgs = "-e" +: default.extraArgs))
 ```
+
+## Preventing tag file generation
 
 If you just want to use this plugin to unzip dependency sources so you can generate ctags outside of SBT, you could set `net.ceedubs.sbtctags.CtagsKeys.ctagsGeneration := { _ => () }` to make the generation of ctags a noop.
 
