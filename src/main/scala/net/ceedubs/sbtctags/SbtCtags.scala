@@ -36,8 +36,8 @@ object SbtCtags extends Plugin {
 
       CtagsKeys.ctagsSrcFileFilter <<= CtagsKeys.ctagsParams(_.languages.foldLeft(NameFilter.fnToNameFilter(_ => false))((filter, lang) => filter | GlobFilter(s"*.$lang"))),
 
-      CtagsKeys.ctagsSrcDirs <<= (Keys.scalaSource in Compile, Keys.javaSource in Compile, CtagsKeys.dependencySrcUnzipDir){ (srcDir, javaSrcDir, depSrcDir) =>
-        Seq(srcDir, javaSrcDir, depSrcDir)
+      CtagsKeys.ctagsSrcDirs <<= (Keys.scalaSource in Compile, Keys.scalaSource in Test, Keys.javaSource in Compile, Keys.javaSource in Test, CtagsKeys.dependencySrcUnzipDir){ (srcDir, testDir, javaSrcDir, javaTestDir, depSrcDir) =>
+        Seq(srcDir, testDir, javaSrcDir, javaTestDir, depSrcDir)
       },
 
       CtagsKeys.ctagsGeneration in ThisBuild := defaultCtagsGeneration,
