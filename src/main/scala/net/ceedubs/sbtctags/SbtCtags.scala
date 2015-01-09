@@ -37,8 +37,6 @@ object SbtCtags extends Plugin {
       Seq(srcDir, depSrcDir)
     },
 
-    Keys.parallelExecution in ThisBuild := false,
-
     CtagsKeys.ctagsGeneration in ThisBuild := defaultCtagsGeneration,
 
     CtagsKeys.genCtags <<= (Keys.thisProjectRef, Keys.state, CtagsKeys.dependencySrcUnzipDir, CtagsKeys.ctagsParams, CtagsKeys.ctagsGeneration, CtagsKeys.ctagsSrcDirs, Keys.streams) map genCtags)
@@ -57,8 +55,8 @@ object SbtCtags extends Plugin {
     val languagesArgs = if (ctagsParams.languages.isEmpty) "" else s"--languages=${ctagsParams.languages.mkString(",")}"
     val extraArgs = ctagsParams.extraArgs.mkString(" ")
     // will look something like "ctags --exclude=.git --exclude=log --languages=scala -f .tags -R src/main/scala target/sbt-ctags-dep-srcs"
-    val ctagsCmd = s"${ctagsParams.executable} $excludeArgs $languagesArgs -a -f ${ctagsParams.tagFileName} $extraArgs -R $dirArgs"
-    context.log.info(s"running this command to generate ctags: $ctagsCmd")
+    val ctagsCmd = s"${ctagsParams.executable} $excludeArgs $languagesArgs -f ${ctagsParams.tagFileName} $extraArgs -R $dirArgs"
+    context.log.info(s"Running this command to generate ctags: $ctagsCmd")
     Process(ctagsCmd, Some(new File(context.buildStructure.root)), Seq.empty: _*).!
   }
 
@@ -68,6 +66,7 @@ object SbtCtags extends Plugin {
     val buildStruct = extracted.structure
     val log = streams.log
     val project = Project.getProject(projectRef, buildStruct)
+
     log.info(s"Processing project named: ${project.get.id}")
     EvaluateTask(buildStruct, Keys.updateClassifiers, state, projectRef).fold(state)(Function.tupled { (state, result) =>
       result match {
@@ -86,7 +85,10 @@ object SbtCtags extends Plugin {
           val existingCtagsSrcDirs = ctagsSrcDirs.filter(_.exists)
           log.debug(s"existing ctags src dirs: $existingCtagsSrcDirs")
           log.info(s"Generating tag file")
-          ctagsGeneration(CtagsGenerationContext(ctagsParams, existingCtagsSrcDirs, buildStruct, streams.log))
+
+          val tagPath = s"${project.get.base.getAbsolutePath}/.${ctagsParams.tagFileName}"
+          val projectCtagParams = ctagsParams.copy(tagFileName = tagPath)
+          ctagsGeneration(CtagsGenerationContext(projectCtagParams, existingCtagsSrcDirs, buildStruct, streams.log))
           state
         case x =>
           log.error(s"error trying to update classifiers to find source jars: $x")
