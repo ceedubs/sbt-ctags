@@ -27,11 +27,8 @@ scalaVersion := "2.10.4"
 scalacOptions ++= Seq(
   "-deprecation",
   "-unchecked",
-  "-encoding", "UTF-8",
-  "-target:jvm-1.7"
+  "-encoding", "UTF-8"
 )
-
-javacOptions ++= Seq("-source", "1.7")
 
 /* publishing */
 publishMavenStyle := true
