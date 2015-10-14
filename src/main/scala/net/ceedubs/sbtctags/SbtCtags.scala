@@ -40,7 +40,7 @@ object SbtCtags extends Plugin {
         Seq(srcDir, testDir, javaSrcDir, javaTestDir, depSrcDir)
       },
 
-      CtagsKeys.ctagsGeneration in ThisBuild := defaultCtagsGeneration,
+      CtagsKeys.ctagsGeneration in ThisBuild := defaultCtagsGeneration(Keys.baseDirectory.value) _,
 
       CtagsKeys.genCtags <<= (Keys.state, CtagsKeys.dependencySrcUnzipDir, CtagsKeys.ctagsParams, CtagsKeys.ctagsSrcFileFilter, CtagsKeys.ctagsGeneration, CtagsKeys.ctagsSrcDirs, Keys.streams) map genCtags
   )
@@ -52,9 +52,15 @@ object SbtCtags extends Plugin {
         tagFileName = ".tags",
         extraArgs = Seq.empty)
 
-  def defaultCtagsGeneration(context: CtagsGenerationContext) {
+  def defaultCtagsGeneration(base: File)(context: CtagsGenerationContext) {
     val ctagsParams = context.ctagsParams
-    val dirArgs = context.srcDirs.map(_.getAbsolutePath).mkString(" ")
+
+    val toPath: File => String = file =>
+      if(ctagsParams.extraArgs.contains("--tag-relative=yes"))
+        file.relativeTo(base).fold(file.getAbsolutePath)(_.getPath)
+      else file.getAbsolutePath
+
+    val dirArgs = context.srcDirs.map(toPath).mkString(" ")
     val excludeArgs = ctagsParams.excludes.map(x => s"--exclude=$x").mkString(" ")
     val languagesArgs = if (ctagsParams.languages.isEmpty) "" else s"--languages=${ctagsParams.languages.mkString(",")}"
     val extraArgs = ctagsParams.extraArgs.mkString(" ")
