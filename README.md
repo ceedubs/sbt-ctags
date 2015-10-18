@@ -97,7 +97,7 @@ If you need/want to have relative paths in your `.tags` file, set the following 
 
 ```scala
 CtagsKeys.ctagsParams ~= (_.copy(
-  extraArgs = Seq("--tag-relative=yes")))
+  useRelativePaths = true))
 ```
 
 # Disclaimers and warnings #
