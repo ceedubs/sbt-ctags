@@ -1,6 +1,7 @@
 package net.ceedubs.sbtctags
 
 import sbt._
+import Keys._
 import sbt.std.TaskStreams
 import java.io.File
 
@@ -17,40 +18,47 @@ final case class CtagsParams(
   tagFileName: String,
   extraArgs: Seq[String])
 
-object CtagsKeys {
-  val dependencySrcUnzipDir = SettingKey[File]("ctags-dependency-src-unzip-dir", "The directory into which the dependency source jars should be unzipped. WARNING: when gen-ctags is run, this directory will be deleted, so DO NOT change this setting to an important directory.")
-  val ctagsParams = SettingKey[CtagsParams]("ctags-params", "Parameters ctag generation")
-  val ctagsSrcDirs = SettingKey[Seq[File]]("ctags-src-dirs", "The directories upon which ctags should be run")
-  val ctagsSrcFileFilter = SettingKey[NameFilter]("ctags-src-file-filter", "A filter for dependency files that should be considered")
-  val ctagsGeneration = SettingKey[CtagsGenerationContext => Unit]("ctags-generation", "A function that takes a context object and creates a tag file. By default it makes an external ctags call.")
+object SbtCtags extends AutoPlugin {
 
-  val genCtags = TaskKey[Unit]("gen-ctags", "Unzip source jars of dependencies and generate ctags files for them")
-}
+  object autoImport {
+    val dependencySrcUnzipDir = SettingKey[File]("ctags-dependency-src-unzip-dir", "The directory into which the dependency source jars should be unzipped. WARNING: when gen-ctags is run, this directory will be deleted, so DO NOT change this setting to an important directory.")
+    val ctagsParams = SettingKey[CtagsParams]("ctags-params", "Parameters ctag generation")
+    val ctagsSrcDirs = SettingKey[Seq[File]]("ctags-src-dirs", "The directories upon which ctags should be run")
+    val ctagsSrcFileFilter = SettingKey[NameFilter]("ctags-src-file-filter", "A filter for dependency files that should be considered")
+    val ctagsGeneration = SettingKey[CtagsGenerationContext => Unit]("ctags-generation", "A function that takes a context object and creates a tag file. By default it makes an external ctags call.")
 
-object SbtCtags extends Plugin {
+    val genCtags = TaskKey[Unit]("gen-ctags", "Unzip source jars of dependencies and generate ctags files for them")
+  }
+
+  import autoImport._
+
+  override def trigger = allRequirements
 
   override val projectSettings = Seq(
-      CtagsKeys.dependencySrcUnzipDir <<= Keys.target (_ / "sbt-ctags-dep-srcs"),
+      dependencySrcUnzipDir <<= target (_ / "sbt-ctags-dep-srcs"),
 
-      CtagsKeys.ctagsParams in ThisBuild := defaultCtagsParams,
+      ctagsParams := defaultCtagsParams,
 
-      CtagsKeys.ctagsSrcFileFilter <<= CtagsKeys.ctagsParams(_.languages.foldLeft(NameFilter.fnToNameFilter(_ => false))((filter, lang) => filter | GlobFilter(s"*.$lang"))),
+      ctagsSrcFileFilter <<= ctagsParams(_.languages.foldLeft(NameFilter.fnToNameFilter(_ => false))((filter, lang) => filter | GlobFilter(s"*.$lang"))),
 
-      CtagsKeys.ctagsSrcDirs <<= (Keys.scalaSource in Compile, Keys.scalaSource in Test, Keys.javaSource in Compile, Keys.javaSource in Test, CtagsKeys.dependencySrcUnzipDir){ (srcDir, testDir, javaSrcDir, javaTestDir, depSrcDir) =>
+      ctagsSrcDirs <<= (scalaSource in Compile, scalaSource in Test, javaSource in Compile, javaSource in Test, dependencySrcUnzipDir){ (srcDir, testDir, javaSrcDir, javaTestDir, depSrcDir) =>
         Seq(srcDir, testDir, javaSrcDir, javaTestDir, depSrcDir)
       },
 
-      CtagsKeys.ctagsGeneration in ThisBuild := defaultCtagsGeneration,
+      ctagsGeneration := CtagsGen.defaultCtagsGeneration,
 
-      CtagsKeys.genCtags <<= (Keys.state, CtagsKeys.dependencySrcUnzipDir, CtagsKeys.ctagsParams, CtagsKeys.ctagsSrcFileFilter, CtagsKeys.ctagsGeneration, CtagsKeys.ctagsSrcDirs, Keys.streams) map genCtags
+      genCtags <<= (state, dependencySrcUnzipDir, ctagsParams, ctagsSrcFileFilter, ctagsGeneration, ctagsSrcDirs, streams).map(CtagsGen.generateCtags)
   )
 
-  val defaultCtagsParams: CtagsParams = CtagsParams(
+  val defaultCtagsParams = CtagsParams(
         executable = "ctags",
         excludes = Seq("log"),
         languages = Seq("scala", "java"),
         tagFileName = ".tags",
         extraArgs = Seq.empty)
+}
+
+object CtagsGen {
 
   def defaultCtagsGeneration(context: CtagsGenerationContext) {
     val ctagsParams = context.ctagsParams
@@ -64,13 +72,12 @@ object SbtCtags extends Plugin {
     Process(ctagsCmd, Some(new File(context.buildStructure.root)), Seq.empty: _*).!
   }
 
-
-  def genCtags(state: State, dependencySrcUnzipDir: File, ctagsParams: CtagsParams, srcFileFilter: NameFilter, ctagsGeneration: CtagsGenerationContext => Unit, ctagsSrcDirs: Seq[File], streams: TaskStreams[_]) {
+  def generateCtags(state: State, dependencySrcUnzipDir: File, ctagsParams: CtagsParams, srcFileFilter: NameFilter, ctagsGeneration: CtagsGenerationContext => Unit, ctagsSrcDirs: Seq[File], streams: TaskStreams[_]) {
     val extracted = Project.extract(state)
     val buildStruct = extracted.structure
     val log = streams.log
     log.info(s"Grabbing all dependency source jars. This may take a while if you don't have them in your Ivy cache")
-    EvaluateTask(buildStruct, Keys.updateClassifiers, state, extracted.currentRef).fold(state)(Function.tupled { (state, result) =>
+    EvaluateTask(buildStruct, updateClassifiers, state, extracted.currentRef).fold(state)(Function.tupled { (state, result) =>
       result match {
         case Value(updateReport) =>
           log.info(s"Clearing $dependencySrcUnzipDir")
@@ -96,5 +103,4 @@ object SbtCtags extends Plugin {
       }
     })
   }
-
 }
