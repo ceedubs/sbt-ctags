@@ -1,3 +1,5 @@
+import Defaults._
+
 sbtPlugin := true
 
 name := "sbt-ctags"
