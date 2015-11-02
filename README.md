@@ -91,6 +91,15 @@ CtagsKeys.ctagsParams ~= (default => default.copy(tagFileName = "TAGS", extraArg
 
 If you just want to use this plugin to unzip dependency sources so you can generate ctags outside of SBT, you could set `net.ceedubs.sbtctags.CtagsKeys.ctagsGeneration := { _ => () }` to make the generation of ctags a noop.
 
+## Relative paths
+
+If you need/want to have relative paths in your `.tags` file, set the following to your sbt-ctags file:
+
+```scala
+CtagsKeys.ctagsParams ~= (_.copy(
+  useRelativePaths = true))
+```
+
 # Disclaimers and warnings #
 Be very careful if you are going to change the `dependencySrcUnzipDir` setting. This directory is cleared every time the `gen-ctags` task runs.
 

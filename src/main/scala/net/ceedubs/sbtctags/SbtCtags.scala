@@ -15,6 +15,7 @@ final case class CtagsParams(
   excludes: Seq[String],
   languages: Seq[String],
   tagFileName: String,
+  useRelativePaths: Boolean,
   extraArgs: Seq[String])
 
 object CtagsKeys {
@@ -40,7 +41,7 @@ object SbtCtags extends Plugin {
         Seq(srcDir, testDir, javaSrcDir, javaTestDir, depSrcDir)
       },
 
-      CtagsKeys.ctagsGeneration in ThisBuild := defaultCtagsGeneration,
+      CtagsKeys.ctagsGeneration in ThisBuild := defaultCtagsGeneration(Keys.baseDirectory.value) _,
 
       CtagsKeys.genCtags <<= (Keys.state, CtagsKeys.dependencySrcUnzipDir, CtagsKeys.ctagsParams, CtagsKeys.ctagsSrcFileFilter, CtagsKeys.ctagsGeneration, CtagsKeys.ctagsSrcDirs, Keys.streams) map genCtags
   )
@@ -50,14 +51,27 @@ object SbtCtags extends Plugin {
         excludes = Seq("log"),
         languages = Seq("scala", "java"),
         tagFileName = ".tags",
+        useRelativePaths = false,
         extraArgs = Seq.empty)
 
-  def defaultCtagsGeneration(context: CtagsGenerationContext) {
+  def defaultCtagsGeneration(base: File)(context: CtagsGenerationContext) {
     val ctagsParams = context.ctagsParams
-    val dirArgs = context.srcDirs.map(_.getAbsolutePath).mkString(" ")
+
+    val toPath: File => String = file =>
+      if(ctagsParams.useRelativePaths)
+        file.relativeTo(base).fold(file.getAbsolutePath)(_.getPath)
+      else file.getAbsolutePath
+
+    val dirArgs = context.srcDirs.map(toPath).mkString(" ")
     val excludeArgs = ctagsParams.excludes.map(x => s"--exclude=$x").mkString(" ")
     val languagesArgs = if (ctagsParams.languages.isEmpty) "" else s"--languages=${ctagsParams.languages.mkString(",")}"
-    val extraArgs = ctagsParams.extraArgs.mkString(" ")
+    val extraArgs = {
+      val args =
+        if(ctagsParams.useRelativePaths)
+          "--tag-relative=yes" +: ctagsParams.extraArgs
+        else ctagsParams.extraArgs
+      args.mkString(" ")
+    }
     // will look something like "ctags --exclude=.git --exclude=log --languages=scala -f .tags -R src/main/scala target/sbt-ctags-dep-srcs"
     val ctagsCmd = s"${ctagsParams.executable} $excludeArgs $languagesArgs -f ${ctagsParams.tagFileName} $extraArgs -R $dirArgs"
     context.log.info(s"running this command to generate ctags: $ctagsCmd")
