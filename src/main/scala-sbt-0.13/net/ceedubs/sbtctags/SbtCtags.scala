@@ -18,6 +18,7 @@ final case class CtagsParams(
   useRelativePaths: Boolean,
   extraArgs: Seq[String])
 
+
 object CtagsKeys {
   val dependencySrcUnzipDir = SettingKey[File]("ctags-dependency-src-unzip-dir", "The directory into which the dependency source jars should be unzipped. WARNING: when gen-ctags is run, this directory will be deleted, so DO NOT change this setting to an important directory.")
   val ctagsParams = SettingKey[CtagsParams]("ctags-params", "Parameters ctag generation")
@@ -28,22 +29,45 @@ object CtagsKeys {
   val genCtags = TaskKey[Unit]("gen-ctags", "Unzip source jars of dependencies and generate ctags files for them")
 }
 
-object SbtCtags extends Plugin {
 
-  override val projectSettings = Seq(
-      CtagsKeys.dependencySrcUnzipDir <<= Keys.target (_ / "sbt-ctags-dep-srcs"),
+object SbtCtags extends AutoPlugin {
+
+  object autoImport {
+    val SbtCtagsKeys = CtagsKeys
+  }
+
+  import autoImport._
+
+  override def requires = plugins.JvmPlugin
+
+  override def trigger = allRequirements
+
+  override lazy val projectSettings = Seq(
+      CtagsKeys.dependencySrcUnzipDir := (Keys.target.value / "sbt-ctags-dep-srcs"),
 
       CtagsKeys.ctagsParams in ThisBuild := defaultCtagsParams,
 
-      CtagsKeys.ctagsSrcFileFilter <<= CtagsKeys.ctagsParams(_.languages.foldLeft(NameFilter.fnToNameFilter(_ => false))((filter, lang) => filter | GlobFilter(s"*.$lang"))),
+      CtagsKeys.ctagsSrcFileFilter :=
+        CtagsKeys.ctagsParams.value.languages.
+          foldLeft(NameFilter.fnToNameFilter(_ => false))((filter, lang) =>
+            filter | GlobFilter(s"*.$lang")),
 
-      CtagsKeys.ctagsSrcDirs <<= (Keys.scalaSource in Compile, Keys.scalaSource in Test, Keys.javaSource in Compile, Keys.javaSource in Test, CtagsKeys.dependencySrcUnzipDir){ (srcDir, testDir, javaSrcDir, javaTestDir, depSrcDir) =>
-        Seq(srcDir, testDir, javaSrcDir, javaTestDir, depSrcDir)
-      },
+      CtagsKeys.ctagsSrcDirs :=
+        Seq((Keys.scalaSource in Compile).value,
+            (Keys.scalaSource in Test).value,
+            (Keys.javaSource in Compile).value,
+            (Keys.javaSource in Test).value,
+            CtagsKeys.dependencySrcUnzipDir.value),
 
       CtagsKeys.ctagsGeneration in ThisBuild := defaultCtagsGeneration(Keys.baseDirectory.value) _,
 
-      CtagsKeys.genCtags <<= (Keys.state, CtagsKeys.dependencySrcUnzipDir, CtagsKeys.ctagsParams, CtagsKeys.ctagsSrcFileFilter, CtagsKeys.ctagsGeneration, CtagsKeys.ctagsSrcDirs, Keys.streams) map genCtags
+      CtagsKeys.genCtags := genCtags(Keys.state.value,
+                                     CtagsKeys.dependencySrcUnzipDir.value,
+                                     CtagsKeys.ctagsParams.value,
+                                     CtagsKeys.ctagsSrcFileFilter.value,
+                                     CtagsKeys.ctagsGeneration.value,
+                                     CtagsKeys.ctagsSrcDirs.value,
+                                     Keys.streams.value)
   )
 
   val defaultCtagsParams: CtagsParams = CtagsParams(

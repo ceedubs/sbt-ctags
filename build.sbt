@@ -22,7 +22,18 @@ scmInfo := Some(
   )
 )
 
-scalaVersion := "2.10.4"
+// scalaVersion := "2.10.4"
+
+scalaVersion := "2.12.3"
+
+sbtVersion in Global := "1.0.3"
+
+scalaCompilerBridgeSource := {
+  val sv = appConfiguration.value.provider.id.version
+  ("org.scala-sbt" % "compiler-interface" % sv % "component").sources
+}
+
+crossSbtVersions := Vector("0.13.16 ", "1.0.3")
 
 scalacOptions ++= Seq(
   "-deprecation",
@@ -33,7 +44,8 @@ scalacOptions ++= Seq(
 /* publishing */
 publishMavenStyle := true
 
-publishTo <<= version { (v: String) =>
+publishTo := {
+  val v = version.value
   val nexus = "https://oss.sonatype.org/"
   if (v.trim.endsWith("SNAPSHOT")) Some(
     "snapshots" at nexus + "content/repositories/snapshots"
