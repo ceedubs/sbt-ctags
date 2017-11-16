@@ -4,12 +4,6 @@ import sbt._
 import sbt.std.TaskStreams
 import java.io.File
 
-final case class CtagsGenerationContext(
-  ctagsParams: CtagsParams,
-  srcDirs: Seq[File],
-  buildStructure: BuildStructure,
-  log: Logger)
-
 final case class CtagsParams(
   executable: String,
   excludes: Seq[String],
@@ -99,9 +93,8 @@ object SbtCtags extends AutoPlugin {
     // will look something like "ctags --exclude=.git --exclude=log --languages=scala -f .tags -R src/main/scala target/sbt-ctags-dep-srcs"
     val ctagsCmd = s"${ctagsParams.executable} $excludeArgs $languagesArgs -f ${ctagsParams.tagFileName} $extraArgs -R $dirArgs"
     context.log.info(s"running this command to generate ctags: $ctagsCmd")
-    Process(ctagsCmd, Some(new File(context.buildStructure.root)), Seq.empty: _*).!
+    Proc.execProcess(ctagsCmd, Some(new File(context.buildStructure.root)))
   }
-
 
   def genCtags(state: State, dependencySrcUnzipDir: File, ctagsParams: CtagsParams, srcFileFilter: NameFilter, ctagsGeneration: CtagsGenerationContext => Unit, ctagsSrcDirs: Seq[File], streams: TaskStreams[_]) {
     val extracted = Project.extract(state)
