@@ -12,14 +12,14 @@ Just want to find out what's new in the most recent version? Check out the [rele
 
 ## Adding the plugin dependency ##
 
-Add the following to `~/.sbt/0.13/plugins/plugins.sbt` (or wherever you like to configure your global SBT settings):
+Add the following to `~/.sbt/1.0/plugins/plugins.sbt` (or wherever you like to configure your global SBT settings):
 ```scala
 resolvers ++= Seq(
   "Sonatype OSS Releases" at "https://oss.sonatype.org/content/repositories/releases/",
   "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
 )
 
-addSbtPlugin("net.ceedubs" %% "sbt-ctags" % "0.2.0")
+addSbtPlugin("net.ceedubs" %% "sbt-ctags" % "0.3.0")
 ```
 
 Alternatively you can add this plugin to individual SBT projects by adding those lines to `<project-dir>/project/plugins.sbt`.
@@ -65,7 +65,7 @@ Emacswiki has some useful information for [navigating using tags](http://www.ema
 
 There are a number of configurable settings declared in [SbtCtags.scala](https://github.com/ceedubs/sbt-ctags/blob/master/src/main/scala/net/ceedubs/sbtctags/SbtCtags.scala). The best way to get to know what the configuration options are is probably to browse the `CtagsKeys` object within that file.
 
-I would suggest putting your sbt-ctags configuration in `~/.sbt/0.13/sbt-ctags.sbt` or something similar.
+I would suggest putting your sbt-ctags configuration in `~/.sbt/1.0/sbt-ctags.sbt` or something similar.
 
 ## Languages ##
 
@@ -104,5 +104,3 @@ CtagsKeys.ctagsParams ~= (_.copy(
 Be very careful if you are going to change the `dependencySrcUnzipDir` setting. This directory is cleared every time the `gen-ctags` task runs.
 
 This plugin makes some assumptions about your system and how you want tags to be generated. Hopefully the customizable settings make it easy for you to use to your liking. If not, I encourage you to send a pull request to make this plugin more flexible/useful/robust.
-
-Currently I don't think this plugin handles projects with multiple modules well. I think multiple modules could be supported fairly easily, but I haven't needed this feature yet. Again, pull requests are encouraged!
