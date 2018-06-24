@@ -24,6 +24,8 @@ scmInfo := Some(
 
 scalaVersion := "2.12.5"
 
+sbtVersion in Global := "1.0.3"
+
 crossSbtVersions := Vector("0.13.17", "1.1.0")
 
 scalaCompilerBridgeSource := {
@@ -39,6 +41,11 @@ scalacOptions ++= Seq(
 
 /* publishing */
 publishMavenStyle := true
+
+useGpg := true
+
+// see https://github.com/sbt/sbt-pgp/issues/126
+pgpSecretRing := pgpPublicRing.value
 
 publishTo := {
   val v = version.value
