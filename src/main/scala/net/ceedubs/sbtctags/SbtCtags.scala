@@ -70,7 +70,7 @@ object SbtCtags extends AutoPlugin {
         executable = "ctags",
         excludes = Seq("log"),
         languages = Seq("scala", "java"),
-        tagFileName = "tags",
+        tagFileName = ".tags",
         useRelativePaths = false,
         extraArgs = Seq.empty)
 
@@ -125,7 +125,7 @@ object SbtCtags extends AutoPlugin {
           log.debug(s"existing ctags src dirs: $existingCtagsSrcDirs")
           log.info(s"Generating tag file")
 
-          val tagPath = s"${project.get.base.getAbsolutePath}/.${ctagsParams.tagFileName}"
+          val tagPath = s"${project.get.base.getAbsolutePath}/${ctagsParams.tagFileName}"
           val projectCtagParams = ctagsParams.copy(tagFileName = tagPath)
           ctagsGeneration(CtagsGenerationContext(projectCtagParams, existingCtagsSrcDirs, buildStruct, streams.log))
           state

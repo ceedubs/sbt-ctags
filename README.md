@@ -72,9 +72,7 @@ I would suggest putting your sbt-ctags configuration in `~/.sbt/1.0/sbt-ctags.sb
 By default, sbt-ctags generates tag files for both Java and Scala source. If you prefer to generate tags only for Scala source, you can add the following to your sbt-ctags file:
 
 ```scala
-import net.ceedubs.sbtctags.CtagsKeys
-
-CtagsKeys.ctagsParams ~= (_.copy(languages = Seq("scala")))
+net.ceedubs.sbtctags.CtagsKeys.ctagsParams ~= (_.copy(languages = Seq("scala")))
 ```
 
 ## Emacs ##
@@ -84,7 +82,7 @@ By default, the tags file is named `.tags` and is created at the project root th
 If you want the tags file to be named `TAGS` and to be in Emacs format, you could set the following to your sbt-ctags file:
 
 ```scala
-CtagsKeys.ctagsParams ~= (default => default.copy(tagFileName = "TAGS", extraArgs = "-e" +: default.extraArgs))
+net.ceedubs.sbtctags.CtagsKeys.ctagsParams ~= (default => default.copy(tagFileName = "TAGS", extraArgs = "-e" +: default.extraArgs))
 ```
 
 ## Preventing tag file generation
@@ -96,8 +94,7 @@ If you just want to use this plugin to unzip dependency sources so you can gener
 If you need/want to have relative paths in your `.tags` file, set the following to your sbt-ctags file:
 
 ```scala
-CtagsKeys.ctagsParams ~= (_.copy(
-  useRelativePaths = true))
+net.ceedubs.sbtctags.CtagsKeys.ctagsParams ~= (_.copy(useRelativePaths = true))
 ```
 
 # Disclaimers and warnings #
