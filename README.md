@@ -84,7 +84,8 @@ By default, the tags file is named `.tags` and is created at the project root th
 If you want the tags file to be named `TAGS` and to be in Emacs format, you could set the following to your sbt-ctags file:
 
 ```scala
-CtagsKeys.ctagsParams ~= (default => default.copy(tagFileName = "TAGS", extraArgs = "-e" +: default.extraArgs))
+
+net.ceedubs.sbtctags.CtagsKeys.ctagsParams ~= (default => default.copy(tagFileName = "TAGS", extraArgs = "-e" +: default.extraArgs))
 ```
 
 ## Preventing tag file generation
