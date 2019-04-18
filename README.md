@@ -1,3 +1,9 @@
+# Abandoned #
+
+This project has been abandoned. I haven't used it or maintained it in years. I recommend using [Metals](https://scalameta.org/metals/) (which is much more feature-rich) instead.
+
+Any issues created in this repository will probably be ignored. Feel free to fork this project in accordance with its [license](LICENSE).
+
 # SBT ctags #
 
 SBT ctags is an SBT plugin that will generate ctags for your Scala project.
