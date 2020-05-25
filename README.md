@@ -57,7 +57,7 @@ This was taken from the excellent blog post [Editing Scala with vim](http://leon
 
 # Using the plugin #
 
-To generate ctags for a project, run `sbt gen-ctags` from the project's root directory. This will unzip dependency source jars into `target/sbt-ctags-dep-srcs` (configurable) and create a tags file (default location is `.tags` inside the root dir).
+To generate ctags for a project, run `sbt genCtags` from the project's root directory. This will unzip dependency source jars into `target/sbt-ctags-dep-srcs` (configurable) and create a tags file (default location is `.tags` inside the root dir).
 
 # Using the tags #
 
@@ -107,6 +107,6 @@ CtagsKeys.ctagsParams ~= (_.copy(
 ```
 
 # Disclaimers and warnings #
-Be very careful if you are going to change the `dependencySrcUnzipDir` setting. This directory is cleared every time the `gen-ctags` task runs.
+Be very careful if you are going to change the `dependencySrcUnzipDir` setting. This directory is cleared every time the `genCtags` task runs.
 
 This plugin makes some assumptions about your system and how you want tags to be generated. Hopefully the customizable settings make it easy for you to use to your liking. If not, I encourage you to send a pull request to make this plugin more flexible/useful/robust.
